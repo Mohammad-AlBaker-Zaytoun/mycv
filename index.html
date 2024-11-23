@@ -268,7 +268,7 @@
       }
     </style>
   </head>
-  <body style="background-image: url('bg.gif')" class="center">
+  <body style="background-image: url('bg.gif')" class="center padding-right:70px">
     <button id="download-btn" style="position: fixed; top: 10px; right: 10px">
       Download PDF
     </button>
@@ -1132,76 +1132,20 @@
     document
       .getElementById("download-btn")
       .addEventListener("click", function () {
-        // Ensure the jsPDF is accessible
-        const { jsPDF } = window.jspdf;
+        const fileName = "mzaytoun-cv.pdf"; // File name in the root directory
+        const a = document.createElement("a"); // Create a hidden <a> element
+        a.href = fileName; // Set the file URL (relative to the root directory)
+        a.download = fileName; // Set the download attribute to suggest the file name
+        document.body.appendChild(a); // Append the <a> to the DOM
+        a.click(); // Programmatically click the <a> to trigger the download
+        document.body.removeChild(a); // Remove the <a> after download
 
-        // Clone the entire body content
-        const content = document.body;
-
-        // Save the current background for later restoration
-        const originalBackground = content.style.background;
-
-        // Remove background for the screenshot
-        content.style.background = "none";
-        content.querySelectorAll("*").forEach((el) => {
-          el.dataset.originalBackground = el.style.background; // Save original background
-          el.style.background = "none";
-        });
-
-        // Use html2canvas to take a screenshot
-        html2canvas(content).then(function (canvas) {
-          // Create a new jsPDF instance
-          const pdf = new jsPDF("p", "mm", "a4");
-
-          // Convert canvas to an image
-          const imgData = canvas.toDataURL("image/png");
-
-          // Calculate image dimensions to fit the PDF page
-          const imgWidth = 210; // A4 width in mm
-          const pageHeight = 297; // A4 height in mm
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-          let heightLeft = imgHeight;
-          let position = 0;
-
-          // Add the first page
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-
-          // Add additional pages if content overflows
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-
-          // Save the PDF
-          pdf.save("CV.pdf");
-
-          // Restore the background after PDF is generated
-          content.style.background = originalBackground;
-          content.querySelectorAll("*").forEach((el) => {
-            el.style.background = el.dataset.originalBackground; // Restore original background
-          });
-
-          // Show success message with SweetAlert
-          Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: "Mohammad's Zaytoun CV has been successfully downloaded.",
-            confirmButtonText: "OK",
-            allowOutsideClick: false, // Disable dismiss on outside click
-            customClass: {
-              // title: "swal-title", // Add custom classes for the title
-              popup: "swal-popup", // Add custom classes for the popup
-            },
-          }).then((result) => {
-            if (result.isConfirmed) {
-              // Reload the page when the alert is dismissed
-              location.reload();
-            }
-          });
+        // Optional: Show success message using SweetAlert
+        Swal.fire({
+          icon: "success",
+          title: "Download Started!",
+          text: "Your CV is being downloaded.",
+          confirmButtonText: "OK",
         });
       });
   </script>
